@@ -42,7 +42,7 @@ Outputs:
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   SqlParseApi:
     Description: "API Gateway endpoint URL for Prod stage for SqlParse function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/production/"
   SqlParse:
     Description: "SqlParse Function ARN"
     Value: !GetAtt SqlParse.Arn
