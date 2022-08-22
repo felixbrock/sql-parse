@@ -1,0 +1,29 @@
+{
+  "configurations": [
+    {
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "name": "sql-parse:SqlParse",
+      "invokeTarget": {
+        "target": "template",
+        "templatePath": "${workspaceFolder}/template.yaml",
+        "logicalId": "SqlParse"
+      },
+      "sam": {"buildArguments": ["--use-container"]},
+      "lambda": {
+        "payload": {
+          "json": {
+            "body": {
+              "sql": "c2VsZWN0ICogZnJvbSBjaXRvLnB1YmxpYy50YWJsZXM="
+            },
+            "queryStringParameters": {
+              "dialect": "snowflake",
+              "isDbt": "true"
+            }
+          }
+        },
+        "environmentVariables": {}
+      }
+    }
+  ]
+}

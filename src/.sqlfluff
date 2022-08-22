@@ -3,6 +3,7 @@
 
 [sqlfluff]
 templater = jinja
+large_file_skip_char_limit = 0
 
 [sqlfluff:templater:jinja]
 apply_dbt_builtins = True
