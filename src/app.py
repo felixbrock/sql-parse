@@ -34,6 +34,7 @@ def lambda_handler(event, context):
     request = event
 
     queryParameters = request['queryStringParameters']
+
     body = json.loads(request['body']) if isinstance(request['body'], str) else request['body']
 
     sql = base64toUTF8(body['sql'])
@@ -48,15 +49,31 @@ def lambda_handler(event, context):
 
     isDbtQueryParamKey = 'isDbt'
 
-    # if isDbtQueryParamKey in queryParameters and queryParameters[isDbtQueryParamKey] == 'true':
-    parsedSQL = sqlfluff.parse(sql, queryParameters[dialectQueryParamKey], './.sqlfluff')
-    # else:
-        # parsedSQL = sqlfluff.parse(sql, queryParameters[dialectQueryParamKey])
-            
+    if isDbtQueryParamKey in queryParameters and queryParameters[isDbtQueryParamKey] == 'true':
+        print('dbt based parsing...')
+        parsedSQL = sqlfluff.parse(sql, queryParameters[dialectQueryParamKey], './dbt.sqlfluff')
+    else:
+        print('default (snowflake based) parsing...')
+        parsedSQL = sqlfluff.parse(sql, queryParameters[dialectQueryParamKey], './.sqlfluff')
+
     return {
         "statusCode": 200,
-        "body": json.dumps(parsedSQL),
+        "body": json.dumps(sortOD(parsedSQL)),
     }
+
+def sortOD(od):
+    res = {}
+    for k, v in sorted(od.items()):
+        if isinstance(v, dict):
+            res[k] = sortOD(v)
+        elif isinstance(v, list):
+            sortedElements = []
+            for element in v:
+                sortedElements.append(sortOD(element))
+            res[k] = sortedElements
+        else:
+            res[k] = v
+    return res
 
 def base64toUTF8(base64String):
     base64Encoded = base64String.encode("UTF-8")
