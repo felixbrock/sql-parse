@@ -9,3 +9,6 @@ py -3 -m venv venv
 venv\Scripts\activate
 
 flask run --port=3037
+
+venv\Scripts\activate; cd dev; flask run --port=3037
+
