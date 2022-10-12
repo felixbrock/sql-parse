@@ -2,10 +2,10 @@ version = 0.1
 [default]
 [default.deploy]
 [default.deploy.parameters]
-stack_name = "sql-parse"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-19btuesgs89pz"
-s3_prefix = "sql-parse"
+stack_name = "sql-parser"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-56398tv3r79x"
+s3_prefix = "sql-parser"
 region = "eu-central-1"
 capabilities = "CAPABILITY_IAM"
 parameter_overrides = "Environment=\"production\""
-image_repositories = []
+image_repositories = ["SqlParse=966593446935.dkr.ecr.eu-central-1.amazonaws.com/sqlparser130b6a91/sqlparseccde4f7arepo"]
