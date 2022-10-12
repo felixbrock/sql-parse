@@ -31,6 +31,7 @@ def lambda_handler(event, context):
     #     print(e)
 
     #     raise e
+
     request = event
 
     queryParameters = request['queryStringParameters']
@@ -44,7 +45,7 @@ def lambda_handler(event, context):
     if not dialectQueryParamKey in queryParameters:
         return {
         "statusCode": 400,
-        "body": 'Missing dialect query parameter',
+        "body": json.dumps({'message': 'Missing dialect query parameter'}),
     }
 
     isDbtQueryParamKey = 'isDbt'
