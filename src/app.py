@@ -2,6 +2,10 @@ import json
 import sqlfluff
 import base64
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 def lambda_handler(event, context):
     """Sample pure Lambda function
 
@@ -32,35 +36,44 @@ def lambda_handler(event, context):
 
     #     raise e
 
+
+
     request = event
 
-    queryParameters = request['queryStringParameters']
+    try:
+        queryParameters = request['queryStringParameters']
 
-    body = json.loads(request['body']) if isinstance(request['body'], str) else request['body']
+        body = json.loads(request['body']) if isinstance(request['body'], str) else request['body']
 
-    sql = base64toUTF8(body['sql'])
+        sql = base64toUTF8(body['sql'])
 
-    dialectQueryParamKey = 'dialect'
+        dialectQueryParamKey = 'dialect'
 
-    if not dialectQueryParamKey in queryParameters:
+        if not dialectQueryParamKey in queryParameters:
+            return {
+            "statusCode": 400,
+            "body": json.dumps({'message': 'Missing dialect query parameter'}),
+        }
+
+        isDbtQueryParamKey = 'isDbt'
+
+        if isDbtQueryParamKey in queryParameters and queryParameters[isDbtQueryParamKey] == 'true':
+            print('dbt based parsing...')
+            parsedSQL = sqlfluff.parse(sql, queryParameters[dialectQueryParamKey], './dbt.sqlfluff')
+        else:
+            print('default (snowflake based) parsing...')
+            parsedSQL = sqlfluff.parse(sql, queryParameters[dialectQueryParamKey], './.sqlfluff')
+
         return {
-        "statusCode": 400,
-        "body": json.dumps({'message': 'Missing dialect query parameter'}),
-    }
-
-    isDbtQueryParamKey = 'isDbt'
-
-    if isDbtQueryParamKey in queryParameters and queryParameters[isDbtQueryParamKey] == 'true':
-        print('dbt based parsing...')
-        parsedSQL = sqlfluff.parse(sql, queryParameters[dialectQueryParamKey], './dbt.sqlfluff')
-    else:
-        print('default (snowflake based) parsing...')
-        parsedSQL = sqlfluff.parse(sql, queryParameters[dialectQueryParamKey], './.sqlfluff')
-
-    return {
-        "statusCode": 200,
-        "body": json.dumps(sortOD(parsedSQL)),
-    }
+            "statusCode": 200,
+            "body": json.dumps(sortOD(parsedSQL)),
+        }
+    except Exception as e:
+        logger.exception(f'error: {e}' if e.args[0] else f'error: unknown')
+        return {
+            "statusCode": 500,
+            "body": json.dumps({'message': 'Internal Error occurred'}),
+        }
 
 def sortOD(od):
     res = {}
